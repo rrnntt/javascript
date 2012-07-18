@@ -40,14 +40,17 @@ circ.posController = function (time)
 	this.moveBy(vx,vy);
 }
 
+var text = new TextString(0,10,'Hello!');
+text.color = "#00FF00";
+
 var graph = new SceneGraph("myCanvas");
+graph.add(text);
 graph.add(img);
 graph.add(circ);
 graph.setMovable( circ );
-//graph.add( new Circle(40,40,15, "#00FF00") );
-//graph.redraw();
+graph.redraw();
 Timer.rate = 33;
-graph.start();
+//graph.start();
 </script>
 
 

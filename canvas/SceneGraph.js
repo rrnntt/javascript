@@ -47,6 +47,22 @@ SingleImage.prototype.draw = function( ctx )
 }
 
 //=================================================================//
+function TextString(x,y,text)
+{
+	this.setPos( x, y );
+	this.text = text;
+	this.font = "12px Arial";
+	this.color = "#000000"
+}
+TextString.inheritsFrom( SceneItem );
+TextString.prototype.draw = function( ctx )
+{
+	ctx.font = this.font;
+	ctx.fillStyle = this.color;
+	ctx.fillText( this.text, this.x, this.y );
+}
+
+//=================================================================//
 function SceneNode()
 {
 	this.items = [];
@@ -90,12 +106,6 @@ SceneGraph.prototype.setMovable = function( item )
 	this.movables.push( item );
 }
 
-function amin()
-{
-	debug("ANIM");
-	window.setTimeout( amin, 1000);
-}
-
 SceneGraph.prototype.run = function()
 {
 	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -106,7 +116,6 @@ SceneGraph.prototype.run = function()
 		this.movables[i].posController( this.time );
 	}
 	this.redraw();
-	//debug("anim");
 }
 
 SceneGraph.prototype.start = function()
