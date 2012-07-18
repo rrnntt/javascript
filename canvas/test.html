@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="200" height="100" style="border:1px solid #c3c3c3;">
+Your browser does not support the canvas element.
+</canvas><br>
+<button type="button" onclick="StartIt()">Start</button>
+<button type="button" onclick="StopIt()">Stop</button>
+<div id="debug"/>
+
+<script type="text/javascript" src="../utils/debug.js"></script>
+<script type="text/javascript" src="../utils/Inheritance.js"></script>
+<script type="text/javascript" src="../utils/timer.js"></script>
+<script type="text/javascript" src="SceneGraph.js"></script>
+
+<script type="text/javascript">
+
+function StartIt()
+{
+	graph.start();
+}
+
+function StopIt()
+{
+	graph.stop();
+}
+
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+var circ = new Circle(20,20,10, "#FF0000");
+circ.name = 'a circ';
+
+var img = new SingleImage(30, 20, 'M.png');
+
+circ.posController = function (time)
+{
+	var vx = 1;
+	var vy = 0.3*time;
+	this.moveBy(vx,vy);
+}
+
+var graph = new SceneGraph("myCanvas");
+graph.add(img);
+graph.add(circ);
+graph.setMovable( circ );
+//graph.add( new Circle(40,40,15, "#00FF00") );
+//graph.redraw();
+Timer.rate = 33;
+graph.start();
+</script>
+
+
+</body>
+</html>
