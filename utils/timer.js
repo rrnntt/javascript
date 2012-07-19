@@ -13,7 +13,11 @@ Timer = {
 		this.startTime = date.getTime();
 		this.intval = setInterval( RunTimer, this.rate );
 	},
-	stop : function(){this.on = false;},
+	stop : function(){
+		this.on = false;
+		this.startTime = 0;
+		this.time = 0;
+	},
 	add : function( item ){
 		var index = this.items.indexOf( item );
 		if ( index < 0 )

@@ -2,28 +2,39 @@
 <html>
 <body>
 
-<canvas id="myCanvas" width="200" height="100" style="border:1px solid #c3c3c3;">
+<canvas id="myCanvas" width="400" height="200" style="border:1px solid #c3c3c3;">
 Your browser does not support the canvas element.
 </canvas><br>
-<button type="button" onclick="StartIt()">Start</button>
-<button type="button" onclick="StopIt()">Stop</button>
+<button type="button" onclick="Start()">Start</button>
+<button type="button" onclick="Stop()">Stop</button>
+<button type="button" onclick="Pause()">Pause</button>
+<button type="button" onclick="Resume()">Resume</button>
 <div id="debug"/>
 
 <script type="text/javascript" src="../utils/debug.js"></script>
 <script type="text/javascript" src="../utils/Inheritance.js"></script>
-<script type="text/javascript" src="../utils/timer.js"></script>
 <script type="text/javascript" src="SceneGraph.js"></script>
 
 <script type="text/javascript">
 
-function StartIt()
+function Start()
 {
 	graph.start();
 }
 
-function StopIt()
+function Stop()
 {
 	graph.stop();
+}
+
+function Pause()
+{
+	graph.pause();
+}
+
+function Resume()
+{
+	graph.resume();
 }
 
 var c=document.getElementById("myCanvas");
@@ -38,6 +49,7 @@ circ.posController = function (time)
 	var vx = 1;
 	var vy = 0.3*time;
 	this.moveBy(vx,vy);
+	//debug( time + ' ' + Timer.time );
 }
 
 var text = new TextString(0,10,'Hello!');
@@ -49,7 +61,7 @@ graph.add(img);
 graph.add(circ);
 graph.setMovable( circ );
 graph.redraw();
-Timer.rate = 33;
+graph.rate = 33;
 //graph.start();
 </script>
 

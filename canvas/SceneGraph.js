@@ -1,4 +1,5 @@
-// requires utils/Inheritance.js utils/timer.js
+// requires utils/Inheritance.js
+// requires utils/timer.js
 
 //=================================================================//
 SceneItem = function(){
@@ -12,7 +13,7 @@ SceneItem = function(){
 	// Move item by a vector
 	this.moveBy = function(dx, dy){this.x += dx;this.y += dy;}
 	// Implement this method to control item's position during animation
-	this.posController = function( time ) {}
+	this.posController = function( scene ) {}
 }
 
 //=================================================================//
@@ -39,6 +40,11 @@ function SingleImage(x,y,src)
 	this.setPos( x, y );
 	this.img = new Image();
 	this.img.src = src;
+	this.img.onload = "SingleImageonLoad()";
+	var me = this;
+	this.img.addEventListener('load',function(){
+		//alert(me.x);
+	},false);
 }
 SingleImage.inheritsFrom( SceneItem );
 SingleImage.prototype.draw = function( ctx )
@@ -89,8 +95,11 @@ function SceneGraph(canvas_id,rwidth,rheight)
 	this.context = this.canvas.getContext("2d");
 	this.movables = [];
 	this.time = 0;
-	this.savedTime = 0;
-	this.isAnimationOn = false;
+	this.startTime = 0;
+	this.pauseTime = 0;
+	this.animationOn = false;
+	this.rate = 1000; 
+	this.intval = 0;
 };
 SceneGraph.inheritsFrom( SceneNode );
 
@@ -108,8 +117,15 @@ SceneGraph.prototype.setMovable = function( item )
 
 SceneGraph.prototype.run = function()
 {
+	if ( !this.animationOn )
+	{
+		clearInterval( this.intval );
+		return;
+	}
 	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-	this.time = Timer.time - this.savedTime;
+	var date = new Date();
+	var ct = date.getTime();
+	this.time = ( ct - this.startTime ) / 1000;
 	var len = this.movables.length;
 	for(var i = 0; i < len; i += 1)
 	{
@@ -120,25 +136,42 @@ SceneGraph.prototype.run = function()
 
 SceneGraph.prototype.start = function()
 {
-	this.isAnimationOn = true;
-	this.savedTime = Timer.time;
-	Timer.add( this );
-	Timer.start();
+	if ( this.animationOn ) return;
+	this.animationOn = true;
+	this.time = 0;
+	var date = new Date();
+	this.startTime = date.getTime();
+	this.pauseTime = this.startTime;
+	var me = this;
+	this.intval = setInterval( function(){
+		me.run();
+	}, this.rate );
 }
 
 SceneGraph.prototype.stop = function()
 {
-	this.isAnimationOn = false;
-	Timer.remove( this );
+	this.animationOn = false;
 }
 
 SceneGraph.prototype.pause = function()
 {
-	this.isAnimationOn = false;
-	this.savedTime = Timer.time;
+	if ( !this.animationOn ) return;
+	this.animationOn = false;
+	var date = new Date();
+	var ct = date.getTime();
+	this.pauseTime = ct;
 }
 
 SceneGraph.prototype.resume = function()
 {
-	this.isAnimationOn = true;
+	if ( this.animationOn ) return;
+	this.animationOn = true;
+	var date = new Date();
+	var ct = date.getTime();
+	this.startTime += ct - this.pauseTime;
+	var me = this;
+	this.intval = setInterval( function(){
+		me.run();
+	}, this.rate );
 }
+
