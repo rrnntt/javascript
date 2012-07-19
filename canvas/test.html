@@ -44,12 +44,12 @@ circ.name = 'a circ';
 
 var img = new SingleImage(30, 20, 'M.png');
 
-circ.posController = function (time)
+circ.posController = function (scene)
 {
+	var time = scene.time;
 	var vx = 1;
 	var vy = 0.3*time;
 	this.moveBy(vx,vy);
-	//debug( time + ' ' + Timer.time );
 }
 
 var text = new TextString(0,10,'Hello!');
@@ -61,7 +61,7 @@ graph.add(img);
 graph.add(circ);
 graph.setMovable( circ );
 graph.redraw();
-graph.rate = 33;
+graph.rate = 10;
 //graph.start();
 </script>
 

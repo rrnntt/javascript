@@ -14,6 +14,8 @@ SceneItem = function(){
 	this.moveBy = function(dx, dy){this.x += dx;this.y += dy;}
 	// Implement this method to control item's position during animation
 	this.posController = function( scene ) {}
+	// Call this method to signal to the SceneGraph
+	this.signal = function( item, sig ){}
 }
 
 //=================================================================//
@@ -43,7 +45,7 @@ function SingleImage(x,y,src)
 	this.img.onload = "SingleImageonLoad()";
 	var me = this;
 	this.img.addEventListener('load',function(){
-		//alert(me.x);
+		me.signal(me,'load');
 	},false);
 }
 SingleImage.inheritsFrom( SceneItem );
@@ -72,12 +74,21 @@ TextString.prototype.draw = function( ctx )
 function SceneNode()
 {
 	this.items = [];
+	this.parentNode = null;
 };
 SceneNode.inheritsFrom( SceneItem );
 
 SceneNode.prototype.add = function(item)
 {
 	this.items.push( item );
+	var me = this;
+	item.signal = function( item, sig ){
+		me.processSignal( item, sig );
+	};
+	if ( item.items )
+	{
+		item.parentNode = this;
+	}
 }
 SceneNode.prototype.draw = function( ctx )
 {
@@ -85,6 +96,18 @@ SceneNode.prototype.draw = function( ctx )
 	for(var i = 0; i < len; i += 1)
 	{
 		this.items[i].draw( ctx );
+	}
+}
+
+SceneNode.prototype.processSignal = function( item, sig )
+{
+	if ( this.parentNode )
+	{
+		this.parentNode.processSignal( item, sig );
+	}
+	else
+	{
+		this.redraw();
 	}
 }
 
@@ -129,7 +152,7 @@ SceneGraph.prototype.run = function()
 	var len = this.movables.length;
 	for(var i = 0; i < len; i += 1)
 	{
-		this.movables[i].posController( this.time );
+		this.movables[i].posController( this );
 	}
 	this.redraw();
 }
