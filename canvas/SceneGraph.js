@@ -1,13 +1,12 @@
 // requires utils/Inheritance.js
-// requires utils/timer.js
 
 //=================================================================//
 SceneItem = function(){
 	this.name = 'none';
 	this.x = 0;
 	this.y = 0;
-	// Draw item onto a canvas. Abstract.
-	this.draw = function( ctx ){alert('function SceneItem.draw is abstract');}
+	// Draw item onto the canvas of a graph. Abstract.
+	this.draw = function( graph ){alert('function SceneItem.draw is abstract');}
 	// Set new position of the item 
 	this.setPos = function(x, y){this.x = x;this.y = y;}
 	// Move item by a vector
@@ -27,8 +26,9 @@ function Circle(x,y,radius, color )
 }
 Circle.inheritsFrom( SceneItem );
 // Draw the circle
-Circle.prototype.draw = function(ctx)
+Circle.prototype.draw = function(graph)
 {
+	ctx = graph.context;
 	ctx.fillStyle = this.color;
 	ctx.beginPath();
 	ctx.arc(this.x, this.y, this.radius, 0,Math.PI*2, true);
@@ -49,9 +49,10 @@ function SingleImage(x,y,src)
 	},false);
 }
 SingleImage.inheritsFrom( SceneItem );
-SingleImage.prototype.draw = function( ctx )
+SingleImage.prototype.draw = function( graph )
 {
-	ctx.drawImage( this.img, this.x, this.y );
+	ctx = graph.context;
+	ctx.drawImage( this.img, this.x, this.x );
 }
 
 //=================================================================//
@@ -63,8 +64,9 @@ function TextString(x,y,text)
 	this.color = "#000000"
 }
 TextString.inheritsFrom( SceneItem );
-TextString.prototype.draw = function( ctx )
+TextString.prototype.draw = function( graph )
 {
+	ctx = graph.context;
 	ctx.font = this.font;
 	ctx.fillStyle = this.color;
 	ctx.fillText( this.text, this.x, this.y );
@@ -75,6 +77,9 @@ function SceneNode()
 {
 	this.items = [];
 	this.parentNode = null;
+	this.angle = 0;
+	this.xScale = 1;
+	this.yScale = 1;
 };
 SceneNode.inheritsFrom( SceneItem );
 
@@ -90,13 +95,20 @@ SceneNode.prototype.add = function(item)
 		item.parentNode = this;
 	}
 }
-SceneNode.prototype.draw = function( ctx )
+SceneNode.prototype.draw = function( graph )
 {
+	ctx = graph.context;
+	ctx.save();
+	ctx.scale( this.xScale, this.yScale );
+	ctx.rotate( this.angle );
+	// translate after scale: x and y are in scaled units
+	ctx.translate( this.x, this.y );
 	var len = this.items.length;
 	for(var i = 0; i < len; i += 1)
 	{
-		this.items[i].draw( ctx );
+		this.items[i].draw( graph );
 	}
+	ctx.restore();
 }
 
 SceneNode.prototype.processSignal = function( item, sig )
@@ -123,12 +135,36 @@ function SceneGraph(canvas_id,rwidth,rheight)
 	this.animationOn = false;
 	this.rate = 1000; 
 	this.intval = 0;
+	
+	if ( rwidth )
+	{
+		this.rwidth = rwidth;
+		this.xScale = this.canvas.width / rwidth;
+	}
+	else
+	{
+		this.rwidth = this.canvas.width;
+		this.xScale = 1;
+	}
+
+	if ( rheight )
+	{
+		this.rheight = rheight;
+		this.yScale = this.canvas.height / rheight;
+	}
+	else
+	{
+		this.rheight = this.canvas.height;
+		this.yScale = 1;
+	}
 };
 SceneGraph.inheritsFrom( SceneNode );
 
 SceneGraph.prototype.redraw = function()
 {
-	this.draw( this.context );
+	// y axis points up
+	ctx.setTransform(1,0,0,-1,0,this.canvas.height);
+	this.draw( this );
 }
 
 // Adds item to the list of movable objects. The item must have been

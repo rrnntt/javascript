@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="400" height="200" style="border:1px solid #c3c3c3;">
+Your browser does not support the canvas element.
+</canvas><br>
+<button type="button" onclick="Start()">Start</button>
+<button type="button" onclick="Stop()">Stop</button>
+<button type="button" onclick="Pause()">Pause</button>
+<button type="button" onclick="Resume()">Resume</button>
+<div id="debug"/>
+
+<script type="text/javascript" src="../utils/debug.js"></script>
+<script type="text/javascript" src="../utils/Inheritance.js"></script>
+<script type="text/javascript" src="SceneGraph.js"></script>
+
+<script type="text/javascript">
+
+function Start()
+{
+	graph.start();
+}
+
+function Stop()
+{
+	graph.stop();
+}
+
+function Pause()
+{
+	graph.pause();
+}
+
+function Resume()
+{
+	graph.resume();
+}
+
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+
+var circ = new Circle(0,0,10, "#CFCFCF");
+circ.name = 'a circ';
+circ.posController = function (scene)
+{
+	var time = scene.time;
+	var vx = 1;
+	var vy = 0.3*time;
+	this.moveBy(vx,vy);
+}
+
+var graph = new SceneGraph("myCanvas",40,20);
+//graph.setPos(0,0);
+graph.add(circ);
+graph.setMovable( circ );
+graph.redraw();
+graph.rate = 10;
+//graph.start();
+
+</script>
+
+
+</body>
+</html>
